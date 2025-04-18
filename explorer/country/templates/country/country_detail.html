@@ -1,0 +1,122 @@
+{% extends 'country/base.html' %}
+{% load humanize %}
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ country.name }}</h1>
+            
+            {% if user.is_authenticated %}
+            <!-- Favorite Toggle Button -->
+            <form method="post" action="{% url 'country:toggle_favorite' country.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn {% if is_favorite %}btn-danger{% else %}btn-outline-primary{% endif %} mb-3">
+                    {% if is_favorite %}
+                        ★ Remove from Favorites
+                    {% else %}
+                        ☆ Add to Favorites
+                    {% endif %}
+                </button>
+            </form>
+            {% endif %}
+            
+            <!-- Country Information -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img src="{{ country.flag_url }}" class="img-fluid mb-3" alt="{{ country.name }} flag">
+                        </div>
+                        <div class="col-md-8">
+                            <p><strong>Capital:</strong> {{ country.capital }}</p>
+                            <p><strong>Population:</strong> {{ country.population|intcomma }}</p>
+                            <p><strong>Currency:</strong> {{ country.currency }}</p>
+                            <p><strong>Language:</strong> {{ country.language }}</p>
+                            {% if avg_rating %}
+                            <p>
+                                <strong>Average Rating:</strong> 
+                                {{ avg_rating|floatformat:1 }} / 5
+                                <span class="text-warning">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= avg_rating|floatformat:"0" %}
+                                            ★
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reviews Section -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Reviews
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <h5>Write a Review</h5>
+                        <form method="post" action="{% url 'country:add_review' country.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Rating</label>
+                                <select name="rating" id="rating" class="form-select" required>
+                                    <option value="" {% if not user_review %}selected{% endif %}>Select a rating</option>
+                                    <option value="1" {% if user_review.rating == 1 %}selected{% endif %}>1 - Poor</option>
+                                    <option value="2" {% if user_review.rating == 2 %}selected{% endif %}>2 - Fair</option>
+                                    <option value="3" {% if user_review.rating == 3 %}selected{% endif %}>3 - Good</option>
+                                    <option value="4" {% if user_review.rating == 4 %}selected{% endif %}>4 - Very Good</option>
+                                    <option value="5" {% if user_review.rating == 5 %}selected{% endif %}>5 - Excellent</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Comment</label>
+                                <textarea name="comment" id="comment" class="form-control" rows="3">{{ user_review.comment|default:'' }}</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                {% if user_review %}Update{% else %}Submit{% endif %} Review
+                            </button>
+                        </form>
+                    {% else %}
+                        <p><a href="{% url 'country:login' %}">Log in</a> to leave a review.</p>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <h5>User Reviews</h5>
+                    {% if reviews %}
+                        {% for review in reviews %}
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="card-subtitle mb-2 text-muted">{{ review.user.username }}</h6>
+                                        <div class="text-warning">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= review.rating %}
+                                                    ★
+                                                {% else %}
+                                                    ☆
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <p class="card-text">{{ review.comment }}</p>
+                                    <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No reviews yet. Be the first to review!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

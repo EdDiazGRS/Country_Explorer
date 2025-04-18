@@ -1,0 +1,31 @@
+{% extends 'country/base.html' %}
+{% block content %}
+<div class="container my-4">
+    <h1>My Favorite Countries</h1>
+    
+    {% if favorites %}
+        <div class="row">
+            {% for favorite in favorites %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="{{ favorite.country.flag_url }}" class="img-fluid mb-3" alt="{{ favorite.country.name }} flag">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ favorite.country.name }}</h5>
+                            <p class="card-text">
+                                <strong>Capital:</strong> {{ favorite.country.capital }}<br>
+                                <strong>Added:</strong> {{ favorite.created_at|date:"M d, Y" }}
+                            </p>
+                            <a href="{% url 'country:country_detail' favorite.country.id %}" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You haven't added any countries to your favorites yet.
+            <a href="{% url 'country:country_list' %}" class="alert-link">Browse countries</a> to add some!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

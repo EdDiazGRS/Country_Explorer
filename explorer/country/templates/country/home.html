@@ -1,0 +1,42 @@
+{% extends 'country/base.html' %}
+
+{% block title %}Home - Countries Explorer{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Countries Explorer</h1>
+    <p class="lead">Discover information about countries around the world.</p>
+    
+    {% if user.is_authenticated %}
+        <p>You are logged in as {{ user.username }}. Explore countries or search for specific information.</p>
+        <a href="{% url 'country:country_list' %}" class="btn btn-primary btn-lg">Browse Countries</a>
+    {% else %}
+        <p>Please log in or register to access all features.</p>
+        <div class="d-flex gap-2">
+            <a href="{% url 'country:login' %}" class="btn btn-primary">Login</a>
+            <a href="{% url 'country:register' %}" class="btn btn-secondary">Register</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Browse Countries</h5>
+                <p class="card-text">Explore all countries in our database with detailed information.</p>
+                <a href="{% url 'country:country_list' %}" class="btn btn-outline-primary">View Countries</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Search Countries</h5>
+                <p class="card-text">Find specific countries by name, region, or other criteria.</p>
+                <a href="{% url 'country:search' %}" class="btn btn-outline-primary">Search</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

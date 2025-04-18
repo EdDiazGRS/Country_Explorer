@@ -1,0 +1,84 @@
+{% extends 'country/base.html' %}
+{% load humanize %}
+{% block title %}Search Countries | Countries Explorer{% endblock %}
+
+{% block content %}
+<h1>Search Countries</h1>
+
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2">
+        <form method="get" action="{% url 'country:search' %}" class="mb-4">
+            <div class="input-group mb-3">
+                <input type="text" name="q" class="form-control" placeholder="Search by country name..." value="{{ query }}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="populationFilter">Population Size</label>
+                        <select class="form-select" id="populationFilter" name="population">
+                            <option value="" {% if not population_filter %}selected{% endif %}>Any Size</option>
+                            <option value="small" {% if population_filter == 'small' %}selected{% endif %}>Small (< 1 million)</option>
+                            <option value="medium" {% if population_filter == 'medium' %}selected{% endif %}>Medium (1M - 100M)</option>
+                            <option value="large" {% if population_filter == 'large' %}selected{% endif %}>Large (> 100 million)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-4">
+                    <button type="submit" class="btn btn-outline-primary">Apply Filters</button>
+                    <a href="{% url 'country:search' %}" class="btn btn-outline-secondary">Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        {% if query or population_filter %}
+        <h2>
+            Results 
+            {% if query %}for "{{ query }}"{% endif %}
+            {% if population_filter %}
+                {% if population_filter == 'small' %}
+                    (Population < 1M)
+                {% elif population_filter == 'medium' %}
+                    (Population 1M-100M)
+                {% elif population_filter == 'large' %}
+                    (Population > 100M)
+                {% endif %}
+            {% endif %}
+        </h2>
+        {% else %}
+        <h2>Popular Countries</h2>
+        {% endif %}
+
+        {% if countries %}
+        <div class="row">
+            {% for country in countries %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    {% if country.flag %}
+                    <img src="{{ country.flag }}" class="card-img-top" alt="{{ country.name }} flag" style="height: 160px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ country.name }}</h5>
+                        <p class="card-text">
+                            <strong>Capital:</strong> {{ country.capital_city }}<br>
+                            <strong>Population:</strong> {{ country.population|intcomma }}
+                        </p>
+                        <a href="{% url 'country:country_detail' country.id %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No countries found matching your search criteria.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
